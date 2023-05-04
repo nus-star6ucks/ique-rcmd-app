@@ -107,10 +107,12 @@ export default {
   },
   methods: {
     async onCreateRecStores () {
-      await axios.post(`${process.env.VUE_APP_VERCEL_INSTANCE_URL}/admin/producer/api/sendUserData`, {
-        userId: this.userId,
-        longitude: this.longitude,
-        latitude: this.latitude
+      await axios.post(`${process.env.VUE_APP_VERCEL_INSTANCE_URL}/admin/producer/api/sendUserData`, {}, {
+        params: {
+          userId: this.userId,
+          longitude: this.longitude,
+          latitude: this.latitude
+        }
       });
       this.pollInterval = setInterval(this.fetchData, 2000)
     },
@@ -123,7 +125,7 @@ export default {
       axios.post(`${process.env.VUE_APP_RT_PROCESSOR_URL}/recommendation`, {}, {
         params: {
           userId: this.userId,
-        }
+        },
       })
         .then((response) => {
           this.storeList = response.data.storeList
