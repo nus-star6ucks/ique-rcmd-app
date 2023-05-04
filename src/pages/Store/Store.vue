@@ -26,12 +26,12 @@
         <a-col
           :lg="8"
           :sm="12"
-          v-for="store in storeList.slice(0, 5)"
-          :key="store.storeId"
-        >
-          <a-card hoverable>
-            <template #cover>
-              <img alt="example" :src="randomImg()" />
+                v-for="(store, index) in storeList.slice(0, 5)"
+                :key="store.storeId"
+              >
+                <a-card hoverable>
+                  <template #cover>
+                    <img alt="example" :src="randomImg(index)" />
             </template>
 
             <a-card-meta :title="store.store_name" class="custom-card">
@@ -120,8 +120,9 @@ export default {
       this.pollInterval = setInterval(this.fetchData, 2000)
     },
 
-    randomImg () {
-      return `https://source.unsplash.com/random/640x480/?Restaurant&date=${Date.now() + Math.random(10)}`
+    async randomImg(index) {
+      const { data: { results } } = await axios.get(`https://api.unsplash.com/search/photos?page=${index}&query=restaurant&client_id=Ipc2KY40gw4TQqw0jvzNdr9VEu4MOWHrAEY6FDmHjh4`)
+      return results[index].urls.regular
     },
 
     fetchData () {
