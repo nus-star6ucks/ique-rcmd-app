@@ -31,44 +31,44 @@
               >
                 <a-card hoverable>
                   <template #cover>
-                    <img alt="example" :src="randomImg(index)" />
-            </template>
+                              <img alt="example" :src="imageUrls[index]" />
+                      </template>
 
-            <a-card-meta :title="store.store_name" class="custom-card">
-              <template #description>
-                <div>
-                  <ApiFilled />
-                  <span> Storeid: {{ store.storeId }}</span>
-                </div>
-                <div>
-                  <MailFilled />
-                  <span> Email: {{ store.email }}</span>
-                </div>
-                <div>
-                  <FireFilled />
-                  <span> Star: {{ store.star }}</span>
-                </div>
-                <div>
-                  <EnvironmentFilled />
-                  <span> Longitude: {{ store.longitude }}</span>
-                </div>
-                <div>
-                  <EnvironmentFilled />
-                  <span> Latitude: {{ store.latitude }}</span>
-                </div>
-                <div>
-                  <CompassFilled />
-                  <span> Address: {{ store.address }}</span>
-                </div>
-              </template>
-            </a-card-meta>
-            <!-- <p>longitude: {{ store.longitude }}</p>
+                      <a-card-meta :title="store.store_name" class="custom-card">
+                        <template #description>
+                          <div>
+                            <ApiFilled />
+                            <span> Storeid: {{ store.storeId }}</span>
+                          </div>
+                          <div>
+                            <MailFilled />
+                            <span> Email: {{ store.email }}</span>
+                          </div>
+                          <div>
+                            <FireFilled />
+                            <span> Star: {{ store.star }}</span>
+                          </div>
+                          <div>
+                            <EnvironmentFilled />
+                            <span> Longitude: {{ store.longitude }}</span>
+                          </div>
+                          <div>
+                            <EnvironmentFilled />
+                            <span> Latitude: {{ store.latitude }}</span>
+                          </div>
+                          <div>
+                            <CompassFilled />
+                            <span> Address: {{ store.address }}</span>
+                          </div>
+                        </template>
+                      </a-card-meta>
+                      <!-- <p>longitude: {{ store.longitude }}</p>
             <p>latitude: {{ store.latitude }}</p> -->
-          </a-card>
-        </a-col>
-      </a-row>
-    </div>
-  </div>
+                    </a-card>
+                  </a-col>
+                </a-row>
+              </div>
+            </div>
 </template>
 
 <script>
@@ -79,7 +79,7 @@ import { CompassFilled, FireFilled, EnvironmentFilled, MailFilled, ApiFilled } f
 
 export default {
   name: 'Store',
-  data () {
+  data() {
     return {
       storeList: [],
       userId: '',
@@ -90,7 +90,8 @@ export default {
       imgLoading: [],
       pollInterval: null,
       status: null,
-      isLoading: false
+      isLoading: false,
+      imageUrls: []
     }
 
   },
@@ -104,11 +105,12 @@ export default {
   props: {
     msg: String
   },
-  mounted () {
-
+  async mounted() {
+    const { data: { results } } = await axios.get(`https://api.unsplash.com/search/photos?page=${index}&query=restaurant&client_id=Ipc2KY40gw4TQqw0jvzNdr9VEu4MOWHrAEY6FDmHjh4`)
+    this.imageUrls = results.map(r => r.urls.regular)
   },
   methods: {
-    async onCreateRecStores () {
+    async onCreateRecStores() {
       this.isLoading = true
       await axios.post(`${process.env.VUE_APP_VERCEL_INSTANCE_URL}/admin/producer/api/sendUserData`, {}, {
         params: {
@@ -120,15 +122,9 @@ export default {
       this.pollInterval = setInterval(this.fetchData, 2000)
     },
 
-    async randomImg(index) {
-      const { data: { results } } = await axios.get(`https://api.unsplash.com/search/photos?page=${index}&query=restaurant&client_id=Ipc2KY40gw4TQqw0jvzNdr9VEu4MOWHrAEY6FDmHjh4`)
-      return results[index].urls.regular
-    },
-
-    fetchData () {
+    async fetchData() {
       axios.post(`${process.env.VUE_APP_RT_PROCESSOR_URL}/recommendation`, {
         userId: this.userId,
-
       })
         .then((response) => {
           this.storeList = response.data.storeList
@@ -142,7 +138,7 @@ export default {
           // this.status = response
         }).catch(() => { })
     }
-  }
+  },
 }
 </script>
 
