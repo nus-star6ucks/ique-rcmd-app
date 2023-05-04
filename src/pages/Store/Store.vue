@@ -84,7 +84,9 @@ export default {
       latitude: '',
       labelCol: { span: 4 },
       wrapperCol: { span: 5 },
-      imgLoading: []
+      imgLoading: [],
+      pollInterval: null,
+      status: null,
     }
 
   },
@@ -108,14 +110,32 @@ export default {
         longitude: this.longitude,
         latitude: this.latitude
       }
-      const res = await axios.post("https://ique-rt-processor-dw7zkrwkja-as.a.run.app/recommendation", params_data)
-      this.storeList = res.data.storeList
-      this.storeList.forEach(ele => {
-        Object.assign(ele, mockJson[Math.floor(Math.random() * 1000)])
-      })
+      await axios.post("ique-app.vercel.app/admin/producer/api", params_data)
+      this.pollInterval = setInterval(this.fetchData, 2000)
     },
+
     randomImg () {
       return `https://source.unsplash.com/random/640x480/?Restaurant&date=${Date.now()}`
+    },
+
+    fetchData () {
+      axios.post('https://ique-rt-processor-dw7zkrwkja-as.a.run.app/recommendation', {}, {
+        params: {
+          userId: this.userId,
+          longitude: this.longitude,
+          latitude: this.latitude
+        }
+      })
+        .then((response) => {
+          this.storeList = response.data.storeList
+          this.storeList.forEach(ele => {
+            Object.assign(ele, mockJson[Math.floor(Math.random() * 1000)])
+          })
+          clearInterval(this.pollInterval) //won't be polled anymore 
+          this.pollInterval = null
+          //check if status is completed, if it is stop polling 
+          // this.status = response
+        }).catch(() => { })
     }
   }
 }
