@@ -106,7 +106,7 @@ export default {
     msg: String
   },
   async mounted() {
-    const { data: { results } } = await axios.get(`https://api.unsplash.com/search/photos?page=${Math.floor(Math.random() * 1000)}&query=restaurant&client_id=Ipc2KY40gw4TQqw0jvzNdr9VEu4MOWHrAEY6FDmHjh4`)
+    const { data: { results } } = await axios.get(`https://api.unsplash.com/search/photos?page=${Math.floor(Math.abs(Math.random() * 1000))}&query=restaurant&client_id=Ipc2KY40gw4TQqw0jvzNdr9VEu4MOWHrAEY6FDmHjh4`)
     this.imageUrls = results.map(r => r.urls.regular)
   },
   methods: {
