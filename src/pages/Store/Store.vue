@@ -74,6 +74,8 @@
 import axios from "axios"
 import mockJson from "@/MOCK_DATA.json"
 import { CompassFilled, FireFilled, EnvironmentFilled, MailFilled, ApiFilled } from '@ant-design/icons-vue'
+
+
 export default {
   name: 'Store',
   data () {
@@ -105,12 +107,11 @@ export default {
   },
   methods: {
     async onCreateRecStores () {
-      const params_data = {
+      await axios.post(`${process.env.VERCEL_INSTANCE_URL}/admin/producer/api`, {
         userId: this.userId,
         longitude: this.longitude,
         latitude: this.latitude
-      }
-      await axios.post("ique-app.vercel.app/admin/producer/api", params_data)
+      });
       this.pollInterval = setInterval(this.fetchData, 2000)
     },
 
@@ -119,11 +120,9 @@ export default {
     },
 
     fetchData () {
-      axios.post('https://ique-rt-processor-dw7zkrwkja-as.a.run.app/recommendation', {}, {
+      axios.post(`${process.env.RT_PROCESSOR_URL}/recommendation`, {}, {
         params: {
           userId: this.userId,
-          longitude: this.longitude,
-          latitude: this.latitude
         }
       })
         .then((response) => {
