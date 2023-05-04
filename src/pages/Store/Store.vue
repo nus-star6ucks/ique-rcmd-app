@@ -107,7 +107,7 @@ export default {
   },
   methods: {
     async onCreateRecStores () {
-      await axios.post(`https://ique-app.vercel.app/admin/producer/api/sendUserData`, {
+      await axios.post(`${process.env.VUE_APP_VERCEL_INSTANCE_URL}/admin/producer/api/sendUserData`, {
         userId: this.userId,
         longitude: this.longitude,
         latitude: this.latitude
@@ -120,7 +120,7 @@ export default {
     },
 
     fetchData () {
-      axios.post(`${process.env.RT_PROCESSOR_URL}/recommendation`, {}, {
+      axios.post(`${process.env.VUE_APP_RT_PROCESSOR_URL}/recommendation`, {}, {
         params: {
           userId: this.userId,
         }
