@@ -1,33 +1,34 @@
 <template>
   <div>
-    <a-form
-      :label-col="labelCol"
-      :wrapper-col="wrapperCol"
-      style="margin-left: 250px; margin-top: 100px; border-color: #ececec"
-    >
-      <a-form-item label="UserId">
-        <a-input v-model:value="userId" />
-      </a-form-item>
-      <a-form-item label="Longitude">
-        <a-input v-model:value="longitude" />
-      </a-form-item>
-      <a-form-item label="Latitude">
-        <a-input v-model:value="latitude" />
-      </a-form-item>
-      <a-button type="primary" @click="onCreateRecStores"
-        >Create Recommendation Stores</a-button
-      >
-    </a-form>
-    <div
-      style="
-        background-color: #ececec;
-        padding: 20px;
-        margin: 50px 200px 200px 200px;
-      "
-      v-if="storeList.length != 0"
-    >
+    <div v-show="storeList.length === 0">
+      <a-form :label-col="labelCol" :wrapper-col="wrapperCol">
+        <a-form-item label="UserId">
+          <a-input v-model:value="userId" />
+        </a-form-item>
+        <a-form-item label="Longitude">
+          <a-input v-model:value="longitude" />
+        </a-form-item>
+        <a-form-item label="Latitude">
+          <a-input v-model:value="latitude" />
+        </a-form-item>
+        <a-button
+          type="primary"
+          :disabled="isLoading"
+          :loading="isLoading"
+          @click="onCreateRecStores"
+          >Get Recommendation List</a-button
+        >
+      </a-form>
+    </div>
+
+    <div style="padding: 20px" v-if="storeList.length != 0">
       <a-row :gutter="[16, 24]">
-        <a-col :span="8" v-for="store in storeList" :key="store.storeId">
+        <a-col
+          :lg="8"
+          :sm="12"
+          v-for="store in storeList.slice(0, 5)"
+          :key="store.storeId"
+        >
           <a-card hoverable>
             <template #cover>
               <img alt="example" :src="randomImg()" />
@@ -84,11 +85,12 @@ export default {
       userId: '',
       longitude: '',
       latitude: '',
-      labelCol: { span: 4 },
-      wrapperCol: { span: 5 },
+      labelCol: { span: 8 },
+      wrapperCol: { span: 8 },
       imgLoading: [],
       pollInterval: null,
       status: null,
+      isLoading: false
     }
 
   },
@@ -107,25 +109,25 @@ export default {
   },
   methods: {
     async onCreateRecStores () {
+      this.isLoading = true
       await axios.post(`${process.env.VUE_APP_VERCEL_INSTANCE_URL}/admin/producer/api/sendUserData`, {}, {
         params: {
           userId: this.userId,
           longitude: this.longitude,
           latitude: this.latitude
         }
-      });
+      })
       this.pollInterval = setInterval(this.fetchData, 2000)
     },
 
     randomImg () {
-      return `https://source.unsplash.com/random/640x480/?Restaurant&date=${Date.now()}`
+      return `https://source.unsplash.com/random/640x480/?Restaurant&date=${Date.now() + Math.random(10)}`
     },
 
     fetchData () {
-      axios.post(`${process.env.VUE_APP_RT_PROCESSOR_URL}/recommendation`, {}, {
-        params: {
-          userId: this.userId,
-        },
+      axios.post(`${process.env.VUE_APP_RT_PROCESSOR_URL}/recommendation`, {
+        userId: this.userId,
+
       })
         .then((response) => {
           this.storeList = response.data.storeList
@@ -134,6 +136,7 @@ export default {
           })
           clearInterval(this.pollInterval) //won't be polled anymore 
           this.pollInterval = null
+          this.isLoading = false
           //check if status is completed, if it is stop polling 
           // this.status = response
         }).catch(() => { })
